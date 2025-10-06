@@ -1,0 +1,428 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wellness Quest - Level Up Your Spirit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg-light: #0f172a;
+            --color-primary: #10b981;
+            --color-secondary: #f59e0b;
+            --color-accent: #8b5cf6; /* Violet for new games */
+            --color-text-dark: #f8fafc;
+            --color-card-bg: rgba(30, 41, 59, 0.95);
+        }
+
+        body { font-family: 'Open Sans', sans-serif; background: #0f172a; color: var(--color-text-dark); overflow-x: hidden; }
+
+        .stars-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        h1, h2 { font-family: 'Merriweather', serif; }
+
+        .card { background: var(--color-card-bg); border: 2px solid rgba(16, 185, 129, 0.3); box-shadow: 0 0 40px rgba(16, 185, 129, 0.2); animation: pop-in .6s cubic-bezier(.175,.885,.32,1.275) forwards; transform: scale(.95); opacity: 0; position: relative; z-index: 10; }
+        @keyframes pop-in { 0% { transform: scale(.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .btn { transition: all .3s cubic-bezier(.175,.885,.32,1.275); position: relative; overflow: hidden; }
+        .btn:hover { transform: translateY(-3px) scale(1.05); }
+        .btn-primary { background: linear-gradient(135deg, #10b981, #059669); border: 2px solid #10b981; }
+        .btn-accent { background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: 2px solid #a78bfa; }
+
+        .level-up-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; pointer-events: none; }
+        .level-up { animation: levelUpBurst 2s cubic-bezier(.175,.885,.32,1.275) forwards; font-size: 4rem; font-weight: bold; color: #fcd34d; text-shadow: 0 0 20px rgba(252, 211, 77, 0.8); }
+        @keyframes levelUpBurst { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 50% { transform: scale(1.5) rotate(0deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 0; } }
+
+        .xp-bar-outer { background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 12px; padding: 4px; }
+        .xp-bar { height: 16px; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 8px; position: relative; overflow: hidden; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+        
+        .achievement { position: fixed; top: 20px; right: -400px; background: linear-gradient(135deg, #f59e0b, #d97706); padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.5); animation: achievementSlide 4s cubic-bezier(.175,.885,.32,1.275) forwards; z-index: 2000; border: 2px solid #fbbf24; }
+        @keyframes achievementSlide { 0% { transform: translateX(0); opacity: 0; } 10% { transform: translateX(-420px); opacity: 1; } 90% { transform: translateX(-420px); opacity: 1; } 100% { transform: translateX(0); opacity: 0; } }
+
+        .answer-btn { background: rgba(30, 41, 59, 0.8); border: 2px solid rgba(16, 185, 129, 0.3); transition: all 0.3s; }
+        .answer-btn:hover { background: rgba(16, 185, 129, 0.2); border-color: #10b981; transform: translateX(10px); }
+
+        /* Styles for Leaf Catcher Game */
+        #game-leaf-container { position: relative; height: 250px; border: 2px dashed #4ade80; border-radius: 1rem; overflow: hidden; background: linear-gradient(to top, #0c4a6e, #075985); }
+        .floating-leaf { position: absolute; bottom: -50px; font-size: 2rem; animation: floatUp 8s linear forwards; cursor: pointer; user-select: none; transition: transform 0.2s, opacity 0.2s; }
+        @keyframes floatUp { to { bottom: 100%; transform: translateY(-50px) rotate(360deg); opacity: 0.8; } }
+        .floating-leaf.caught { animation: none; transform: scale(1.5) !important; opacity: 0 !important; }
+
+        /* Styles for Grounding Game */
+        .grounding-step { opacity: 0; animation: fadeInUp 1s ease forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Styles for Affirmation Game */
+        .input-affirmation { background-color: #1e293b; border: 2px solid var(--color-accent); border-radius: 0.5rem; padding: 0.75rem 1rem; color: white; transition: box-shadow 0.3s; }
+        .input-affirmation:focus { box-shadow: 0 0 15px rgba(139, 92, 246, 0.5); outline: none; }
+        .input-affirmation.error { animation: shake 0.5s; border-color: #f43f5e; }
+        @keyframes shake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-8px); } 40%, 60% { transform: translateX(8px); } }
+        
+        .rank-badge { display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: 3px solid #fcd34d; border-radius: 20px; font-weight: bold; font-size: 1.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); box-shadow: 0 5px 20px rgba(245, 158, 11, 0.5); }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="stars-bg" id="stars-container"></div>
+    <div class="level-up-container" id="level-up-display"></div>
+    <div id="achievement-display"></div>
+
+    <div id="main-container" class="w-full max-w-xl mx-auto text-center relative">
+        <div id="welcome-screen" class="card p-8 rounded-2xl">
+            <h1 class="text-4xl font-extrabold mb-3 bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Wellness Quest</h1>
+            <p class="text-gray-300 mb-6">Embark on a journey to level up your well-being! Each step brings you closer to inner balance.</p>
+            <input id="name-input" type="text" placeholder="Enter your hero name..." class="w-full px-4 py-3 rounded-lg bg-slate-700 border-2 border-green-500/30 focus:ring-2 focus:ring-green-500 outline-none font-semibold text-white placeholder-gray-400 text-center" />
+            <button id="start-btn" class="btn btn-primary text-white font-bold py-3 px-8 rounded-lg mt-6 shadow-md"><span class="relative z-10">🎮 START QUEST</span></button>
+        </div>
+        
+        <div id="question-screen" class="card p-8 rounded-2xl hidden">
+            <div class="xp-bar-outer mb-4">
+                <div class="flex justify-between text-xs mb-1 px-2">
+                    <span class="font-bold text-green-400">⚡ LEVEL <span id="current-level">1</span></span>
+                    <span class="font-bold text-gray-300"><span id="current-xp">0</span> / <span id="next-level-xp">100</span> XP</span>
+                </div>
+                <div class="bg-slate-800 rounded-full h-4 overflow-hidden"><div id="xp-bar" class="xp-bar h-full transition-all duration-500" style="width:0%"></div></div>
+            </div>
+            <h2 id="question-text" class="text-xl font-bold mb-6 min-h-[56px] text-gray-100"></h2>
+            <div id="answer-buttons" class="space-y-3"></div>
+        </div>
+
+        <!-- NEW GAME SCREENS -->
+        <div id="game-leaf-screen" class="card p-8 rounded-2xl hidden">
+            <h2 class="text-2xl font-bold mb-2">Mindful Tapping 🍂</h2>
+            <p id="game-leaf-instruction" class="text-gray-300 mb-4">Gently tap 3 drifting leaves to collect them.</p>
+            <div id="game-leaf-container" class="w-full mx-auto mb-4"></div>
+            <p id="game-leaf-counter" class="font-bold text-xl text-primary">Leaves: 0 / 3</p>
+        </div>
+
+        <div id="game-grounding-screen" class="card p-8 rounded-2xl hidden">
+            <h2 class="text-2xl font-bold mb-2">Grounding Exercise 🧘</h2>
+            <p class="text-gray-300 mb-4">Take a deep breath and connect with your surroundings.</p>
+            <div id="grounding-steps" class="space-y-3 text-lg font-semibold min-h-[200px] text-left"></div>
+            <button id="grounding-done-btn" class="btn btn-accent text-white font-bold py-3 px-6 rounded-lg mt-4 hidden">All Done!</button>
+        </div>
+        
+        <div id="game-affirmation-screen" class="card p-8 rounded-2xl hidden">
+            <h2 class="text-2xl font-bold mb-2">Positive Affirmation ✨</h2>
+            <p class="text-gray-300 mb-4">Type the phrase below to reinforce a positive mindset.</p>
+            <blockquote id="affirmation-text" class="text-2xl font-semibold italic text-amber-300 my-6 p-4 border-l-4 border-amber-300"></blockquote>
+            <input id="affirmation-input" type="text" class="input-affirmation w-full text-center" />
+            <button id="affirmation-confirm-btn" class="btn btn-accent text-white font-bold py-3 px-6 rounded-lg mt-4">Confirm</button>
+        </div>
+
+        <div id="final-screen" class="card rounded-2xl hidden relative overflow-hidden p-0">
+            <div class="absolute inset-0 z-0" style="background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop'); background-size: cover; animation: ken-burns 20s ease-in-out infinite alternate;"></div>
+            <div class="relative z-10 bg-slate-900/90 backdrop-blur-sm p-8 rounded-2xl border-2 border-green-500">
+                <div class="rank-badge mb-4"><span id="final-rank"></span></div>
+                <h2 class="text-3xl font-extrabold mb-4 text-white">Quest Complete, <span id="final-name" class="text-green-400"></span>! 🎊</h2>
+                
+                <div id="final-insights" class="text-left space-y-4 my-6 text-gray-200">
+                    <!-- Personalized insights will be injected here -->
+                </div>
+
+                <button id="restart-btn" class="btn btn-primary text-white font-bold py-3 px-6 rounded-lg mt-8"><span class="relative z-10">🔄 NEW QUEST</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const starsContainer = document.getElementById('stars-container');
+            if (starsContainer) {
+                for (let i = 0; i < 100; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.animationDelay = `${Math.random() * 3}s`;
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            const screens = { welcome: document.getElementById('welcome-screen'), question: document.getElementById('question-screen'), final: document.getElementById('final-screen'), gameLeaf: document.getElementById('game-leaf-screen'), gameGrounding: document.getElementById('game-grounding-screen'), gameAffirmation: document.getElementById('game-affirmation-screen'), };
+            const nameInput = document.getElementById('name-input');
+            let userName = '', currentQuestionIndex = 0, currentXP = 0, currentLevel = 1, achievementsEarned = [];
+            let activeQuestions = [];
+            let userResponses = {};
+
+            // --- DATA BANK ---
+            const fullQuestionBank = [
+                { text: "Do you feel happy most of the time?", category: 'Well-being', options: [{text: "Often", xp: 50}, {text: "Sometimes", xp: 30}, {text: "Rarely", xp: 10}] },
+                { text: "Do you feel satisfied with how your day is going?", category: 'Well-being', options: [{text: "Very", xp: 50}, {text: "It's okay", xp: 30}, {text: "Not really", xp: 10}] },
+                { text: "Do you feel positive about yourself today?", category: 'Well-being', options: [{text: "Absolutely", xp: 60}, {text: "Mostly", xp: 40}, {text: "A bit down", xp: 20}] },
+                { text: "Have you laughed or smiled today?", category: 'Well-being', options: [{text: "Yes, heartily!", xp: 50}, {text: "A little", xp: 30}, {text: "Not yet", xp: 10}] },
+                { text: "Do you feel hopeful about the future?", category: 'Well-being', options: [{text: "Very hopeful", xp: 60}, {text: "Cautious", xp: 40}, {text: "Uncertain", xp: 20}] },
+                { text: "Do you feel rested when you wake up?", category: 'Self-Care', options: [{text: "Usually, yes", xp: 50}, {text: "Hit or miss", xp: 30}, {text: "Almost never", xp: 10}] },
+                { text: "Do you have enough energy for your day?", category: 'Self-Care', options: [{text: "Plenty!", xp: 50}, {text: "Enough to get by", xp: 30}, {text: "Often drained", xp: 10}] },
+                { text: "Have you had a positive interaction with someone today?", category: 'Social', options: [{text: "Yes, a great one!", xp: 60}, {text: "A brief one", xp: 30}, {text: "Not yet", xp: 10}] },
+                { text: "Do you feel comfortable reaching out for support?", category: 'Social', options: [{text: "Yes, always", xp: 60}, {text: "Sometimes", xp: 30}, {text: "I find it difficult", xp: 10}] },
+                { text: "Do you often feel self-critical?", category: 'Mindset', options: [{text: "Rarely", xp: 60}, {text: "Sometimes", xp: 30}, {text: "Often", xp: 10}] },
+                { text: "When faced with a challenge, do you look for solutions?", category: 'Mindset', options: [{text: "Yes, I'm a problem-solver", xp: 60}, {text: "I try to", xp: 40}, {text: "I tend to dwell on it", xp: 10}] },
+                { text: "Do you regularly make time for a hobby?", category: 'Coping', options: [{text: "Yes, it's a priority", xp: 60}, {text: "Sometimes", xp: 30}, {text: "I wish I had time", xp: 10}] },
+                { text: "Have you been outside for fresh air today?", category: 'Coping', options: [{text: "Yes, it was refreshing", xp: 50}, {text: "Just for a moment", xp: 30}, {text: "Not at all", xp: 10}] },
+                { text: "Have you eaten a nutritious meal today?", category: 'Self-Care', options: [{text: "Yes, a balanced one", xp: 50}, {text: "It was okay", xp: 30}, {text: "Mostly snacks", xp: 10}] },
+            ];
+            
+            const miniGames = ['leaf', 'grounding', 'affirmation'];
+            let activeGame = '';
+            let gameTriggerIndex = -1;
+
+            const insightsMatrix = {
+                'Well-being': { high: "You have a strong sense of daily happiness and optimism. It's a wonderful foundation for resilience.", low: "It's okay to have off-days. Try to notice one small thing that brings a brief moment of comfort or joy today." },
+                'Self-Care': { high: "You excel at listening to your body's needs for rest and nutrition. This is a key part of sustainable wellness.", low: "Your energy is a precious resource. Consider scheduling a 10-minute break for yourself just as you would an important meeting." },
+                'Social': { high: "Your connections with others are a source of strength. Nurturing these bonds is a powerful form of self-care.", low: "Connection can start small. Perhaps send a simple, no-pressure text to a friend just to say hello." },
+                'Mindset': { high: "You have a resilient and growth-oriented mindset, turning challenges into opportunities.", low: "Your inner critic can be loud sometimes. Try asking yourself: 'What would I say to a friend in this situation?'" },
+                'Coping': { high: "You have healthy and effective strategies for managing stress and making time for joy.", low: "Finding a healthy outlet is vital. Could you spare five minutes for a favorite song or a quick walk outside today?" }
+            };
+
+
+            function showLevelUp(level) {
+                const display = document.getElementById('level-up-display');
+                display.innerHTML = `<div class="level-up">LEVEL ${level}!</div>`;
+                setTimeout(() => { display.innerHTML = ''; }, 2000);
+            }
+
+            function showAchievement(text) {
+                if (achievementsEarned.includes(text)) return;
+                achievementsEarned.push(text);
+                const display = document.getElementById('achievement-display');
+                const achievement = document.createElement('div');
+                achievement.className = 'achievement';
+                achievement.innerHTML = `<div class="font-bold text-xl">🏆 ${text}</div>`;
+                display.appendChild(achievement);
+                setTimeout(() => achievement.remove(), 4000);
+            }
+
+            function addXP(amount) {
+                currentXP += amount;
+                const xpForNextLevel = 50 + (currentLevel * 50);
+                if (currentXP >= xpForNextLevel) {
+                    currentXP -= xpForNextLevel;
+                    currentLevel++;
+                    showLevelUp(currentLevel);
+                }
+                updateXPDisplay();
+            }
+
+            function updateXPDisplay() {
+                const xpForNextLevel = 50 + (currentLevel * 50);
+                const percentage = Math.min((currentXP / xpForNextLevel) * 100, 100);
+                document.getElementById('xp-bar').style.width = `${percentage}%`;
+                document.getElementById('current-xp').textContent = currentXP;
+                document.getElementById('next-level-xp').textContent = xpForNextLevel;
+                document.getElementById('current-level').textContent = currentLevel;
+            }
+
+            function showScreen(name) {
+                Object.values(screens).forEach(s => s.classList.add('hidden'));
+                screens[name].classList.remove('hidden');
+            }
+
+            function initializeQuiz() {
+                userName = nameInput.value.trim();
+                if (!userName) return;
+                
+                // Reset state
+                currentQuestionIndex = 0; currentXP = 0; currentLevel = 1; achievementsEarned = []; userResponses = {};
+                
+                // Setup new quest
+                let shuffled = [...fullQuestionBank].sort(() => 0.5 - Math.random());
+                activeQuestions = shuffled.slice(0, 10);
+                activeGame = miniGames[Math.floor(Math.random() * miniGames.length)];
+                gameTriggerIndex = Math.floor(Math.random() * 4) + 3; // Trigger between question 3 and 6
+
+                showQuestion();
+            }
+
+            function showQuestion() {
+                if (currentQuestionIndex === gameTriggerIndex) {
+                    startGame(activeGame);
+                    return;
+                }
+
+                if (currentQuestionIndex >= activeQuestions.length) {
+                    showFinalScreen();
+                    return;
+                }
+
+                showScreen('question');
+                updateXPDisplay();
+                const question = activeQuestions[currentQuestionIndex];
+                document.getElementById('question-text').textContent = question.text;
+                
+                const answerButtons = document.getElementById('answer-buttons');
+                answerButtons.innerHTML = '';
+                question.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-btn text-gray-100 font-bold py-4 px-6 rounded-lg w-full text-left';
+                    button.textContent = `+${option.xp} XP - ${option.text}`;
+                    button.onclick = () => selectAnswer(question.category, option.xp);
+                    answerButtons.appendChild(button);
+                });
+            }
+
+            function selectAnswer(category, xp) {
+                addXP(xp);
+                // Record response for final insights
+                if (!userResponses[category]) userResponses[category] = [];
+                userResponses[category].push(xp);
+
+                currentQuestionIndex++;
+                setTimeout(showQuestion, 500);
+            }
+
+            // --- Game Logic ---
+            function startGame(gameType) {
+                if (gameType === 'leaf') startLeafGame();
+                if (gameType === 'grounding') startGroundingGame();
+                if (gameType === 'affirmation') startAffirmationGame();
+            }
+
+            function endGame(xpBonus, achievement) {
+                addXP(xpBonus);
+                showAchievement(achievement);
+                currentQuestionIndex++; // Ensure we don't get stuck in a game loop
+                setTimeout(showQuestion, 2000);
+            }
+
+            function startLeafGame() {
+                showScreen('gameLeaf');
+                let leavesCaught = 0;
+                const leavesToCatch = 3;
+                const gameContainer = document.getElementById('game-leaf-container');
+                const counter = document.getElementById('game-leaf-counter');
+                gameContainer.innerHTML = '';
+                counter.textContent = `Leaves: 0 / ${leavesToCatch}`;
+
+                const spawnLeaf = () => {
+                    const leaf = document.createElement('span');
+                    leaf.className = 'floating-leaf';
+                    leaf.innerHTML = ['🍂', '🍁', '🍃'][Math.floor(Math.random() * 3)];
+                    leaf.style.left = `${Math.random() * 90}%`;
+                    leaf.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                    leaf.onclick = () => {
+                        if (leavesCaught >= leavesToCatch) return;
+                        leaf.classList.add('caught');
+                        leavesCaught++;
+                        counter.textContent = `Leaves: ${leavesCaught} / ${leavesToCatch}`;
+                        if (leavesCaught >= leavesToCatch) {
+                            clearInterval(leafInterval);
+                            document.getElementById('game-leaf-instruction').textContent = "Well done!";
+                            endGame(80, "Mindful Focus");
+                        }
+                    };
+                    gameContainer.appendChild(leaf);
+                };
+                const leafInterval = setInterval(spawnLeaf, 800);
+            }
+
+            function startGroundingGame() {
+                showScreen('gameGrounding');
+                const stepsContainer = document.getElementById('grounding-steps');
+                const doneBtn = document.getElementById('grounding-done-btn');
+                stepsContainer.innerHTML = '';
+                doneBtn.classList.add('hidden');
+                
+                const steps = [
+                    "<strong>5:</strong> Notice <strong>FIVE</strong> things you can see around you.",
+                    "<strong>4:</strong> Acknowledge <strong>FOUR</strong> things you can touch.",
+                    "<strong>3:</strong> Listen for <strong>THREE</strong> things you can hear.",
+                    "<strong>2:</strong> Identify <strong>TWO</strong> things you can smell.",
+                    "<strong>1:</strong> Name <strong>ONE</strong> thing you can taste."
+                ];
+                
+                let delay = 500;
+                steps.forEach((stepText, index) => {
+                    setTimeout(() => {
+                        const p = document.createElement('p');
+                        p.className = 'grounding-step';
+                        p.innerHTML = stepText;
+                        stepsContainer.appendChild(p);
+                        if (index === steps.length - 1) {
+                            setTimeout(() => doneBtn.classList.remove('hidden'), 1000);
+                        }
+                    }, delay);
+                    delay += 2500;
+                });
+
+                doneBtn.onclick = () => endGame(100, "Present Moment");
+            }
+
+            function startAffirmationGame() {
+                showScreen('gameAffirmation');
+                const affirmations = ["I am calm and in control.", "I am capable of handling challenges.", "I choose to be positive.", "I am worthy of peace."];
+                const chosenAffirmation = affirmations[Math.floor(Math.random() * affirmations.length)];
+                
+                const textEl = document.getElementById('affirmation-text');
+                const inputEl = document.getElementById('affirmation-input');
+                const confirmBtn = document.getElementById('affirmation-confirm-btn');
+
+                textEl.textContent = `"${chosenAffirmation}"`;
+                inputEl.value = '';
+                inputEl.maxLength = chosenAffirmation.length + 2;
+
+                confirmBtn.onclick = () => {
+                    if (inputEl.value.toLowerCase().trim() === chosenAffirmation.toLowerCase().trim()) {
+                        endGame(120, "Positive Voice");
+                    } else {
+                        inputEl.classList.add('error');
+                        setTimeout(() => inputEl.classList.remove('error'), 500);
+                    }
+                };
+            }
+
+
+            function showFinalScreen() {
+                showScreen('final');
+                document.getElementById('final-name').textContent = userName;
+                
+                const rankTiers = ["Novice", "Apprentice", "Adept", "Master", "Grandmaster", "Legend"];
+                const finalRank = rankTiers[Math.min(currentLevel - 1, rankTiers.length - 1)];
+                document.getElementById('final-rank').textContent = finalRank;
+
+                // --- NEW Insight Logic ---
+                const insightsContainer = document.getElementById('final-insights');
+                insightsContainer.innerHTML = '';
+                
+                let categoryScores = {};
+                for (const category in userResponses) {
+                    const scores = userResponses[category];
+                    const average = scores.reduce((a, b) => a + b, 0) / scores.length;
+                    categoryScores[category] = average;
+                }
+
+                let sortedCategories = Object.keys(categoryScores).sort((a, b) => categoryScores[b] - categoryScores[a]);
+
+                if (sortedCategories.length > 0) {
+                    const strongestCategory = sortedCategories[0];
+                    const highlightHTML = `<div class="p-4 bg-green-500/10 border-l-4 border-green-400 rounded-r-lg">
+                        <h3 class="font-bold text-green-300">🌟 Your Highlight: ${strongestCategory}</h3>
+                        <p class="text-gray-300">${insightsMatrix[strongestCategory].high}</p>
+                    </div>`;
+                    insightsContainer.innerHTML += highlightHTML;
+                }
+
+                if (sortedCategories.length > 1) {
+                    const growthCategory = sortedCategories[sortedCategories.length - 1];
+                     const suggestionHTML = `<div class="p-4 bg-amber-500/10 border-l-4 border-amber-400 rounded-r-lg mt-4">
+                        <h3 class="font-bold text-amber-300">🌱 A Gentle Suggestion: ${growthCategory}</h3>
+                        <p class="text-gray-300">${insightsMatrix[growthCategory].low}</p>
+                    </div>`;
+                    insightsContainer.innerHTML += suggestionHTML;
+                }
+            }
+            
+            document.getElementById('start-btn').addEventListener('click', initializeQuiz);
+            document.getElementById('restart-btn').addEventListener('click', () => { showScreen('welcome'); nameInput.value = ''; });
+            
+            showScreen('welcome');
+        });
+    </script>
+</body>
+</html>
+ 
